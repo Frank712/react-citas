@@ -1,25 +1,59 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Fragment, useState, useEffect } from 'react';
+import Form from './components/Form';
+import Cita from './components/Cita';
 
 function App() {
+
+  let citasInit = JSON.parse(localStorage.getItem('citas'));
+  if(!citasInit) {
+    citasInit = [];
+  }
+
+  const [stateCitas, setstateCitas] = useState(citasInit);
+
+  const createCita = cita => {
+    console.log(cita);
+    setstateCitas([...stateCitas, cita]);
+    // [...stateCitas, cita]
+  };
+
+  const deleteCitaById = (id) => {
+    setstateCitas(stateCitas.filter(c => c.id !== id));
+  }
+
+  useEffect(() => {
+    let citasInit = JSON.parse(localStorage.getItem('citas'));
+    if(citasInit) {
+      localStorage.setItem('citas', JSON.stringify(stateCitas));
+    } else {
+      localStorage.setItem('citas', JSON.stringify([]))
+    }
+  }, [stateCitas])
+
+  let title = stateCitas.length === 0 ? 'No hay citas registradas' : 'Administra tus citas';
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Fragment>
+      <h1>Administración de Pacientes</h1>
+      <div className="container">
+        <div className="row">
+          <div className="one-half column">
+            <Form
+              createCita={createCita}
+            ></Form>
+          </div>
+          <div className="one-half column">
+          <h2>{title}</h2>
+          {
+            stateCitas.map(cita => (
+              <Cita key={cita.id} cita={cita} deleteCitaById={deleteCitaById}></Cita>
+            ))
+          }
+          </div>
+        </div>
+
+      </div>
+    </Fragment>
   );
 }
 
